@@ -1,0 +1,355 @@
+---
+title: "S1 L1 - Contrôle Terminal de Statistiques"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+
+# Questions de cours
+
+**Question 1**. QCM
+
+Sachant que n1 < 30, quelles sont les conditions d'application à vérifier pour un test de Student de comparaison de deux échantillons indépendants ?
+
+1. Aucune (_faux_)
+2. Effectifs du deuxième échantillon > 30 (_faux_)
+3. Effectifs des deux échantillons égaux (_faux_)
+3. Normalité des deux échantillons (**vrai**)
+4. Égalité des variances des deux échantillons (**vrai**)
+5. Égalité des médianes des deux échantillons (_faux_)
+
+
+**Question 2**. QROC
+
+Quel test permet de vérifier la normalité d'un échantillon ? (**Shapiro-Wilk**)
+
+
+**Question 3**. QCM
+
+Parmi les indicateurs suivant le(s)quel(s) est (sont) un (des) indicateur(s) de position ?
+
+1. Médiane (**vrai**)
+2. Moyenne (**vrai**)
+3. Mode (**vrai**)
+4. Écart-type (_faux_)
+5. Variance (_faux_)
+6. Écart inter-quartiles (_faux_)
+
+
+**Question 4**. QCM
+
+Quel(s) type(s) de variables connaissez vous ?
+
+1. Qualitative nominale (**vrai**)
+2. Qualitative ordinale (**vrai**)
+3. Quantitative discrète (**vrai**)
+4. Quantitative continue (**vrai**)
+5. Quantitative ordinale (_faux_)
+6. Qualitative multidimensionnelle (_faux_)
+7. Quantitative polynomiale (_faux_)
+8. Qualitative pondérée (_faux_)
+
+
+**Question 5**. QCM
+
+Parmi les indicateurs suivants le(s)quel(s) est (sont) un (des) indicateur(s) de dispersion ?
+
+1. Moyenne (_faux_)
+2. Médiane (_faux_)
+3. Écart interquartile (**vrai**)
+4. Écart-type (**vrai**)
+5. Variance (**vrai**)
+6. Étendue (**vrai**)
+7. Premier décile (_faux_)
+
+
+**Question 6**. QCM
+
+Quel type de représentation graphique est adaptée pour une variable qualitative ?
+
+1. Histogramme (_faux_)
+2. Diagramme en boîte à moustaches (= *boxplot*) (_faux_)
+3. Diagramme quantile-quantile (_faux_)
+4. Diagramme en barres (**vrai**)
+5. Diagramme en secteurs (= camembert) (**vrai**)
+
+
+**Question 7**. QROC
+
+Quel est le niveau standard de risque $\alpha$ habituellement utilisé ?
+\newline (**0,05**)
+
+
+**Question 8**. QCM
+
+Qu'est-ce qu'un test bilatéral ?
+
+1. Un test entre deux hypothèses (_faux_)
+2. Un test statistique vérifiant une différence dans les deux sens (**vrai**)
+3. Un test ne nécessitant qu'un seul échantillon (_faux_)
+4. Un test de symétrie parfaite (_faux_)
+5. Un test dont l'hypothèse nulle est modifiée (_faux_)
+
+
+**Question 9**.
+
+Que signifie "p-value < alpha" ?
+
+1. On rejette l'hypothèse nulle (H0) au seuil de signification alpha (**vrai**)
+2. On accepte définitivement l'hypothèse nulle (H0) au seuil de signification alpha (_faux_)
+3. La différence observée est forcément due à un effet réel (_faux_)
+4. Le résultat est absolument certain (_faux_)
+
+
+**Question 10**. QZONE
+
+Étiqueter Boxplot
+
+# Exo 1 - Supplément alimentaire
+
+```{r exo1-generation-donnees}
+library("dplyr")
+
+set.seed(20241219)
+n_patients <- 56  # 40 par groupe
+
+# Fonction pour générer des données
+generer_donnees <- function() {
+  # Groupe supplémentation
+  force_groupe_supplementation <- rnorm(n_patients/2, mean = 22, sd = 3)
+  progression_groupe_supplementation <- force_groupe_supplementation + 
+    rnorm(n_patients/2, mean = 5, sd = 2)
+  
+  # Groupe contrôle
+  force_groupe_controle <- rnorm(n_patients/2, mean = 20, sd = 3)
+  progression_groupe_controle <- force_groupe_controle + 
+    rnorm(n_patients/2, mean = 2, sd = 2)
+  
+  # Création du dataframe
+  donnees <- data.frame(
+    groupe = c(rep("Supplément", n_patients/2), rep("Placebo", n_patients/2)),
+    force_initiale = c(force_groupe_supplementation, force_groupe_controle),
+    force_finale = c(progression_groupe_supplementation, progression_groupe_controle)
+  ) %>%
+    mutate(progression = force_finale - force_initiale)
+  
+  return(donnees)
+}
+
+muscle_data = generer_donnees()
+```
+
+Un centre de rééducation évalue un supplément nutritionnel (MusclePlus) sur la récupération musculaire après chirurgie orthopédique. L'étude porte sur 80 patients répartis en deux groupes de 40. Un groupe a pris quotidiennement des gélules de MusclePlus pendant trois semaines, l'autre a reçu des gélules placebo pendant la même durée. On mesure la force des patients avant l'administration des suppléments alimentaires puis après. On peut donc mesurer la progression musculaire de chaque patient au cours de ces trois semaines. On cherche à mesure l'influence du MusclePlus sur la progression en force des patients ? (Une progression naturelle est attendue du fait de la récupération après la chirurgie).
+
+Les données se présentent de la manière suivante :
+
+```{r exo1-head-data}
+knitr::kable(slice(muscle_data, (n_patients/2 - 2):(n_patients/2 + 3)))
+```
+
+
+**Question 1**. QCM
+
+On effectue un test de Shapiro-Wilk sur la progression de force dans chacun des groupes.
+
+```{r exo1-shapiro-strength}
+placebo = muscle_data[muscle_data$groupe == "Placebo", ]
+shapiro.test(placebo$progression)
+
+supplement = muscle_data[muscle_data$groupe == "Supplément", ]
+shapiro.test(supplement$progression)
+```
+
+Comment interpréter ces tests ?
+
+1. La progression du groupe "Placebo" suit une loi normale (**vrai**)
+2. La progression du groupe "Supplément" suit une loi normale (**vrai**)
+3. La progression du groupe "Placebo" ne suit pas une loi normale (_faux_)
+4. La progression du groupe "Supplément" ne suit pas une loi normale (_faux_)
+5. Les variances des progressions des deux groupes sont égales (_faux_)
+6. Les moyennes des progressions des deux groupes sont différentes (_faux_)
+
+**Question 2**. QCM
+
+On cherche à effectuer un test de Student de comparaison de moyenne pour comparer les deux groupes. On a vérifié la normalité des progressions en force des deux groupes. Que devons-nous faire maintenant ?
+
+1. Il faut réaliser le test de Student (_faux_)
+2. Il faut vérifier l'égalité des variances entre les deux groupes (**vrai**)
+3. Il faut vérifier la normalité avec des diagrammes quantile-quantile (_faux_)
+4. Il faut calculer la différence de moyennes entre les groupes (_faux_)
+5. Il faut ajouter davantage de patients pour pouvoir effectuer un test (_faux_)
+
+
+**Question 3**. QCM
+
+On vérifie l'égalité des variances entre les deux groupes avec le test suivant :
+
+```{r exo1-fisher}
+var.test(placebo$progression, supplement$progression)
+```
+
+Comment l'interprétez-vous ?
+
+1. Les variances des deux échantillons sont égales (**vrai**)
+2. Les variances des deux échantillons sont différentes (_faux_)
+3. Le ratio des deux variances observées vaut environ 1.71 (**vrai**)
+4. Le ratio des deux variances observées vaut environ 0.17 (_faux_)
+
+
+**Question 4**. QCM
+
+On effectue le test de Student suivant.
+
+```{r exo1-student}
+t.test(supplement$progression, placebo$progression, alternative = "greater", var.equal = TRUE)
+```
+
+Cochez toutes les affirmations qui sont vraies.
+
+1. Ce test correspond à un test bilatéral testant la **différence** des deux moyennes (_faux_)
+2. Ce test correspond à un test unilatéral testant la **supériorité** du supplément sur le placebo (**vrai**)
+3. Ce test correspond à un test unilatéral testant l'**infériorité** du supplément sur le placebo (_faux_)
+4. Le supplément et le placebo ont la même efficacité sur la récupération musculaire (_faux_)
+5. Le supplément est plus efficace que le placebo (**vrai**)
+6. Le supplément est moins efficace que le placebo (_faux_)
+
+
+**Question 5**. QROC
+
+Proposez une amélioration méthodologique pour cette étude.
+
+Réponses possible :
+
+- Plus de données
+- Double aveugle
+- Randomisation de l'attribution de patients
+
+
+
+# Exo 2 - Effet de la méditation sur la mémoire
+
+```{r exo2-data}
+
+# Paramètres de simulation
+set.seed(20241219)
+n_participants <- 28
+
+# Fonction de simulation des données
+simuler_memoire_travail <- function(n) {
+  # Performance initiale (avant méditation)
+  base_performance <- round(rnorm(n, mean = 50, sd = 10), 1)
+  
+  # Effet de la méditation (amélioration variable)
+  effet_meditation <- rnorm(n, mean = 5, sd = 3)
+  
+  # Performance après 8 semaines
+  performance_finale <- base_performance + effet_meditation + 
+    rnorm(n, mean = 0, sd = 2)
+  
+  # Création du dataframe
+  donnees <- data.frame(
+    participant = 1:n,
+    performance_initiale = base_performance,
+    performance_finale = round(performance_finale, 1),
+    difference = round(performance_finale, 1) - base_performance
+  )
+  
+  return(donnees)
+}
+
+# Génération des données
+donnees_etude <- simuler_memoire_travail(n_participants)
+```
+
+Une équipe de recherche en neurosciences étudie l'impact d'un programme de méditation de huit semaines sur les performances de mémoire de travail chez 28 étudiant⋅es. L'objectif est de tester dans quelle mesure la méditation peut augmenter la mémoire de travail des étudiant⋅es. On demande aux étudiant⋅es de suivre un programme de 10 minutes de méditation quotidienne. On mesure la performance de la mémoire de travail des étudiant⋅es à l'aide de tests standardisé avant le démarrage du programme puis une fois après les huit semaines du programme. On obtient un score de performance entre 1 (très mauvaise performance) et 100 (performance totale). On mesure aussi la différence entre ces deux performances pour chaque participant⋅e.
+
+Voilà comment se présente le jeu de données :
+
+```{r exo2-head}
+knitr::kable(head(donnees_etude))
+```
+
+**Question 1**. QCM
+
+Que représente une ligne de ce jeu de données ?
+
+1. Un⋅e participant⋅e avec ses performances aux tâches de mémoire (**vrai**)
+2. Un groupe de participants ayant effectué le programme (_faux_)
+3. Un groupe de participants n'ayant pas effectué le programme (_faux_)
+4. Une moyenne des tests de performance de mémoire de travail des participants (_faux_)
+
+**Question 2**. QCM
+
+Quelle(s) caractéristique(s) présente(nt) ce jeu de données ?
+
+1. Les performances initiale et finale sont indépendantes (_faux_)
+2. Les performances initiale et finale sont appariées (**vrai**)
+3. Les performances initiales sont distribuées normalement (_faux_)
+4. Les performances finales sont distribuées normalement (_faux_)
+5. La différence de performance est distribuée normalement (_faux_)
+
+**Question 3**. QCM
+
+Comme les performances sont appariées, on cherche  on va tester la normalité de leur différence.
+
+```{r exo2-shapiro}
+shapiro.test(donnees_etude$difference)
+```
+
+Cochez les affirmations vraies :
+
+1. Comme p > alpha = 5%, on rejette H0 (_faux_),
+2. Comme p > alpha = 5%, on ne rejette pas H0 (**vrai**),
+3. Comme p < alpha = 5%, on rejette H0 (_faux_)
+4. Comme p < alpha = 5%, on ne rejette pas H0 (_faux_)
+5. Les différences sont distribuées normalement (**vrai**)
+6. Les différences ne sont pas distribuées normalement (_faux_)
+
+
+**Question 4**. QCM
+
+On utilise la ligne de code R suivante :
+
+```r
+t.test(donnees_etude$performance_initiale, donnees_etude$performance_finale, paired = TRUE, alternative = "less")
+```
+
+De quoi s'agit-il ?
+
+1. Il s'agit d'un test de comparaison de moyennes appariées (**vrai**)
+2. Il s'agit d'un test de comparaison de moyennes indépendantes (_faux_)
+3. Il s'agit d'un test de comparaison de moyenne à une moyenne théorique (_faux_)
+4. Il s'agit d'un test bilatéral (_faux_)
+5. Il s'agit d'un test unilatéral (**vrai**)
+
+
+**Question 5**. QCM
+
+On effectue un test de comparaison de moyennes appariées unilatéral en supposant que la performance finale est augmentée par rapport à la performance initiale.
+
+```{r exo2-student}
+t.test(donnees_etude$performance_initiale, donnees_etude$performance_finale, paired = TRUE, alternative = "less")
+```
+
+Comment interprétez-vous le résultat de ce test ?
+
+1. p < alpha = 5%, donc on rejette H0, et la performance des étudiant⋅es a augmenté après avoir suivi le programme de méditation (**vrai**)
+2. p < alpha = 5%, donc on rejette H0, et la performance des étudiant⋅es a diminué après avoir suivi le programme de méditation (_faux_)
+3. p > alpha = 5%, donc on accepte H0, et la performance des étudiant⋅es a augmenté après avoir suivi le programme de méditation (_faux_)
+4. p > alpha = 5%, donc on accepte H0, et la performance des étudiant⋅es a diminué après avoir suivi le programme de méditation (_faux_)
+
+**Question 6**. QCM
+
+On observe la différence entre performance finale et performance initiale.
+
+```{r exo2-difference-distribution}
+summary(donnees_etude$difference)
+```
+
+Qu'observez-vous ?
+
+1. Tou⋅te⋅s les participant⋅es ont vu leur performance varier de la même façon (_faux_)
+2. Tou⋅te⋅s les participant⋅es ont vu leur performance augmenter de la même façon (_faux_)
+3. Aucun⋅e participant⋅e n'a vu ses performances diminuer (_faux_)
+4. Il existe une variabilité importante dans la différence de performance (**vrai**)

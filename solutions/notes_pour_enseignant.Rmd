@@ -1,0 +1,79 @@
+---
+title: "Cours de statistiques S2 L1 Biotechnologies pour la Santé"
+subtitle: "Note pour l'enseignant·e"
+author: "Matthias Grenié"
+output:
+  pdf_document:
+    latex_engine: xelatex
+link-citations: true
+link-color: red
+urlcolor: blue
+---
+
+# Contexte pédagogique
+
+Cette UE s'inscrit au second semestre de Licence Biotechnologies pour la Santé. La majorité des étudiant·es n'a aucune appétence pour les mathématiques ou la programmation. C'est donc un public difficile à convaincre. Pour le faire, n'hésitez pas à insister sur l'intérêt de l'application des statistiques dans le domaine biomédical. On ne fait pas de statistiques pour le plaisir, mais pour répondre à des questions scientifiques !
+
+L'UE s'inscrit dans la suite de l'UE du premier semestre où les étudiants ont découvert les statistiques inférentielles pour la première fois, ainsi que R. Ils ont vu les tests statistiques suivants :
+
+- test de Shapiro-Wilk (`shapiro.test()`),
+- test de Fisher (`var.test()`),
+- test de Student de comparaison à une moyenne théorique (`t.test(..., mu = X)`),
+- test de Student de comparaison de moyennes de deux échantillons indépendants (`t.test(e1, e2)`),
+- test de Student de comparaison de moyennes de deux échantillons appariés (`t.test(e1, e2, paired = TRUE)`).
+
+Ce semestre on étudie les tests non paramétriques qui permettent de quand même faire des tests pour des données qui ne valideraient pas les conditions d'application des tests susmentionnés.
+
+# Modalités d'évaluation de l'UE
+
+L'UE se déroule en deux parties :
+
+- Partie mathématiques (50% de la note) :
+	- Un contrôle continu sur papier qui aura lieu le **26 février 2025** (20% note totale)
+	- Un contrôle terminal sur papier qui aura lieu le **19 mai 2025** (30% note totale)
+- Partie statistiques (50% de la note) :
+	- Un contrôle continu sur machine qui aura lieu le **10 avril 2025** (20% note totale)
+	- Un contrôle terminal en mode QCM qui aura lieu le **19 mai 2025**(30% note totale)
+
+Le contrôle continu de statistiques durera 1h sur la dernière séance de TD avec un jeu de données à analyser ce jour-là en répondant à des questions papiers.
+
+Le contrôle terminal prendra la forme d'un ensemble de questions QCM et cie. sur tablette portant sur le cours, des interprétations de tests et de graphiques.
+
+Dans les deux cas, le programme portera sur **l'ensemble des connaissances vues au premier et second semestre**.
+
+# Points spécifiques des différentes séances
+
+Les formules mathématiques des TD ne sont pas à connaître, mais permettent aux étudiant·es (celleux qui le souhaitent) de comprendre comment on calcule les statistiques des tests.
+
+## TD1 : comparaison de deux échantillons
+
+Pour le premier TD rappelez bien que leur premier objectif est de mettre en place des tests **paramétriques** (test de Student).
+Si on n'arrive pas à mettre en place un test paramétrique -> on fait un test non paramétrique.
+
+Rappelez la différence entre données **indépendantes** et **appariés**. Ce concept n'est pas évident à comprendre pour les étudiants. Prendre l'exemple de même personnes mesurées plusieurs fois au cours du temps, ou bien même personne/échantillon mesuré par plusieurs méthodes.
+
+
+## TD2 : comparaison de plusieurs échantillons
+
+À nouveau, dans ce TD la difficulté peut venir de la notion d'**appariement**.
+
+
+## TD3 : tests d'ajustement
+
+Insister sur l'objectif général des tests d'ajustement : comparer un échantillon à une distribution connue. Soit on a un échantillon d'une variable quantitative et on peut utiliser le test de Kolmogorov-Smirnov, soit c'est un échantillon d'une variable qualitative et on peut utiliser le test du $\chi^2$ d'ajustement
+
+Pour les étudiant·es ce TD est la première qu'elles et ils ont a **saisir des données**, montrer qu'on peut le faire avec la fonction `c()`. Cela peut être pratique s'ils veulent tester leurs propres données.
+
+
+## TD4 : test du $\chi^2$ d'indépendance
+
+La difficulté de ce TD provient de l'explication du calcul des effectifs théoriques et de la vérification des conditions d'application. En particulier sur R, le remplacement du niveau `"None"` par `"Some"`. Cela doit être montré au tableau car les étudiant·es ne peuvent pas le deviner simplement avec l'énoncé du TD. Prenez le temps de détaillé l'exemple (copie de la colonne, sélection des valeurs `"None"`, assignation à la nouvelle valeur)
+
+
+## TD5 : révision
+
+Ce TD est un grand TD bilan de révisions, il est volontairement très long pour donner beaucoup de possibilités de réviser. L'objectif pour le cours qui y sera consacré sera de faire en détail la partie de présentation des données (et notamment d'identification des points problématiques), de faire quelques questions de la partie statistiques descriptives, et de prendre la majorité du temps sur la partie statistiques inférentielles.
+
+Prenez le temps de détailler la manière de filtrer des lignes selon plusieurs conditions et d'extraire des colonnes. Montrez l'effet de l'utilisation de `length()` sur un data.frame complet (= le nombre de colonnes) *vs* sur une colonne extraite (le nombre d'éléments dans la colonne = le nombre de lignes du tableau).
+
+

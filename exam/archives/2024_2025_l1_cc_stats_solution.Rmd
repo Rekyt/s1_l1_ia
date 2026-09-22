@@ -1,0 +1,252 @@
+---
+title: "Contrôle continu de statistiques"
+subtitle: "Essai clinique sur un nouvel hypotenseur"
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+  - \usepackage{lastpage}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancypagestyle{plain}{
+      \renewcommand{\headrulewidth}{0pt}
+      \fancyhead[L]{}
+      \fancyhead[C]{L1 Biotech. - S1 Maths \& Stats 1}
+      \fancyhead[R]{2024-2025}
+      \fancyfoot[C]{\thepage/\pageref{LastPage}}
+    }
+  - \fancyhead[C]{L1 Biotech. - S1 Maths \& Stats 1}
+  - \fancyhead[R]{2024-2025}
+  - \fancyfoot[C]{\thepage/\pageref{LastPage}}
+---
+
+**Prénom**:\hspace{5cm} **Nom**:\hspace{5cm} **Groupe**:\hspace{5cm}
+
+## Consignes
+
+**Tous documents autorisés**, mais pas d'IA générative ni de messagerie autorisées.
+
+Sauf si **explicitement demandé**, **il n'est pas nécessaire de recopier le code sur votre copie**.
+
+L'évaluation des réponses tiendra compte de : (1) hypothèses testées, (2) vérification des conditions d'application, (3) résultat obtenu, (4) la rédaction d'une conclusion **complète**.
+
+Si vous effectuez plusieurs fois le même test, vous pouvez écrire une seule fois les hypothèses et vous y référer à plusieurs reprises.
+
+Si vous n'arrivez pas à mettre en place le code pour répondre à une question, imaginez le test que vous auriez mis en place et précisez toutes les autres étapes en imaginant un résultat possible, cela vous permettra d'obtenir la majorité des points.
+
+Si DOORS ne fonctionne pas, appelez le surveillant de votre salle afin de vérifier que ce n'est pas une autre difficulté, si c'est toujours le cas, rédigez vos réponses d'après le point ci-dessus.
+
+Si vous n'avez pas assez de place pour répondre sur le sujet, les versos des sujets peuvent être utilisés.
+
+Pour tout le long du contrôle continu **le seuil alpha fixé est de 3\%**
+
+
+## Contexte des données
+
+L'hypertension artérielle est le fait d'avoir une pression trop élévée dans les vaisseaux sanguins. On considère qu'une personne souffre d'hypertension quand elle a une pression systolique supérieure à 140 mmHg (milimètres de mercure) et une pression diastolique supérieure à 90 mmHg. Dans le monde, on estime que 1,28 milliards de personnes sont touchées par l'hypertension artérielle. Il s'agit d'une des premières causes de décès prématuré au monde.
+
+Dans l'étude réalisée ici, nous mettons en place un essai randomisé pour vérifier si une nouvelle substance, l'Ilepratil, a bien un effet hypotenseur (= qui réduit la tension des patients). Pour cela, on effectue un essai randomisé sur 50 patientes et patients, ils sont aléatoirement assigné aux groupes traitement (qui reçoit de l'ilepatril) ou placebo (qui reçoit un cachet équivalent sans activité) à parts égale. Puis on mesure leur pression systolique 2h après l'administration du cachet.
+
+Les données se présentent sous la forme d'un tableau de 50 lignes avec 5 colonnes :
+
+- `patient_id`, le numéro identifiant la patiente ou le patient ;
+- `age`, l'âge de la patiente ou du patient en années ;
+- `sexe`, le sexe du patient (`"h"` : homme, `"f"` : femme) ;
+- `groupe`, le groupe auquel le patient a été attribué (`"traitement"` : groupe à qui on admnistre de l'ilepatril, `"placebo"` : groupe qui reçoit un placebo) ;
+- `systolique`, la pression systolique en millimètres de mercure.
+
+\newpage
+\pagestyle{fancy}
+Le jeu de données se présente ainsi :
+
+```{r lecture-donnees, echo=FALSE}
+knitr::kable(head(read.table("hypertension.txt", header = TRUE)))
+```
+
+
+# Questions
+
+## Statistiques Descriptives (6 points)
+
+**Question 1**. Quelle est la moyenne d'âge des patients ?
+
+*1pt pour valeur correcte*
+
+```{r q1}
+tension = read.table("hypertension.txt", header = TRUE)
+
+head(tension)
+
+mean(tension$age)
+```
+
+**Question 2**. Combien y a-t-il de personnes souffrant d'hypertension dans l'étude ?\newline(= pression systolique > à 140mmHg)
+
+*2pt pour valeur correcte*
+
+```{r q2}
+sum(tension$systolique > 140)
+```
+
+**Question 3**. Comparez la distribution d'âges entre les groupes placebo et traitement.\newline Que remarquez-vous ? Qu'est-ce que cela signifie pour l'étude ?
+
+*3pt total (1pt pour explication, 1pt pour phrase de remarque, 1pt pour la conclusion pour l'étude)*
+
+```{r q3}
+boxplot(
+  tension$age[tension$groupe == "placebo"],
+  tension$age[tension$groupe == "traitement"],
+  names = c("placebo", "traitement")
+)
+
+```
+On observe que le groupe traitement a une médiane et des quartiles d'âge plus faibles que le groupe placebo. Donc les patients du groupe traitement sont plus jeunes que ceux du groupe placebo. Cela peut faire que les différences potentielles observées de pression systolique entre les groupes peuvent être liées à des différences d'âge. Il aurait fallu constituer des groupes homogènes en âge pour éviter cet effet.
+
+## Statistiques Inférentielles (14 points)
+
+**Question 4**. Calculez l'intervalle de confiance à 95% de l'âge des personnes dans le groupe `placebo`. (Arrondissez l'intervalle à la 1ère décimale)
+
+*2pt total (1pt vérification hypothèses, 0,5pt valeurs correctes, 0,5pt arrondi)*
+
+On veut calculer l'intervalle de confiance à 95%, pour cela, il faut d'abord vérifier les conditions d'application de ce calcul.
+
+```{r q4}
+CI <- function(x, confidence){
+    alpha = 1 - confidence
+    mu = mean(x)
+    sigma = sd(x)
+    n = length(x)
+    CI_inf = mu - (qt(1 - alpha/2, n-1) * sigma/sqrt(n))
+    CI_sup = mu + (qt(1 - alpha/2, n-1) * sigma/sqrt(n))
+    CI = c(inf = CI_inf, sup = CI_sup) 
+    return(CI)
+}
+
+length(tension$age[tension$groupe == "placebo"])
+```
+On observe n = 24 < 30, il faut donc vérifier la normalité de la distribution des valeurs d'âges dans le groupe placebo. On effectue pour cela un test de Shapiro-Wilk, dont les hypothèses sont :
+
+* H0 : l'échantillon suit une loi normale
+* H1 : l'échantillon ne suit pas une loi normale
+
+```{r q4-2}
+shapiro.test(tension$age[tension$groupe == "placebo"])
+```
+
+On observe p = 0.014 < alpha = 3%, donc on rejette H0 et la distribution ne suit pas une loi normale.
+Donc on ne peut pas calculer d'intervalle de confiance.
+
+Si on le fait quand même :
+
+```{r q4-3}
+CI(tension$age[tension$groupe == "placebo"], 0.95)
+```
+L'intervalle obtenu est (arrondi) $[58,1~;~65,3]$
+
+**Question 5**. La moyenne de pression systolique observée dans l'échantillon est-elle compatible avec tension moyenne observée dans la population de 130 mmHg ? (**Donnez l'expression R du test utilisé**)
+
+*4pt total (1pt hypothèses, 1pt conditions d'application, 1pt expression test, 1pt interprétation*
+
+On cherche à effectuer un test de Student de comparaison de notre échantillon total à une moyenne théorique de 130. On doit d'abord vérifier les conditions d'applications
+```{r q5}
+length(tension$systolique)
+```
+On observe n > 30, donc on peut procéder au test directement
+
+```{r q5-2}
+t.test(tension$systolique, mu = 130)
+```
+On observe que p = 0.026 ce qui proche de notre seuil alpha = 3%, donc même si on est en-dessous, on ne peut pas conclure réellement. Donc il est compliqué de dire si notre échantillon a une tension moyenne de 130 mmHg.
+
+
+**Question 6**. Y a-t-il une différence de tension systolique entre les hommes et les femmes de l'échantillon ? (**Donnez l'expression R du test utilisé**)
+
+*4pt total (1pt hypothèses, 1pt conditions d'application, 1pt expression test, 1pt interprétation)*
+
+On cherche à effectuer un test de Student de comparaison de moyennes indépendantes entre les hommes et les femmes.
+On vérifie d'abord les conditions d'applications du test
+
+```{r q6}
+f = tension$systolique[tension$sexe == "f"]
+h = tension$systolique[tension$sexe == "h"]
+
+length(f)
+length(h)
+
+# N < 30 pour les deux échantillons, il faut vérifier la normalité avec un test de Shapiro par exemple
+# 
+# mêmes hypothèses qu'au-dessus
+shapiro.test(f)
+shapiro.test(h)
+
+# Égalité des variances
+# H0 : les variances des échantillons sont égales
+# H1 : les variances des échantillons sont différentes
+var.test(f, h)
+
+# Test de Student
+# H0 : les pressions systoliques des femmes et des hommes sont égales
+# H1 : les pressions systoliques des femmes et des hommes sont différentes
+t.test(f, h, var.equal = TRUE)
+```
+On observe que p = 0.046 > alpha = 0.03, donc on ne peut pas rejeter H0 et les moyennes de pressions systoliques sont égales.
+
+
+**Question 7**. Le traitement est-il réellement hypotenseur (= réduit la tension artérielle systolique) par rapport au placebo ? (**Donnez l'expression R du test utilisé**)
+
+*4pt total (1pt hypothèses, 1pt conditions d'application, 1pt expression test, 1pt interprétation)*
+
+On cherche à effectuer un test unilatéral de Student de comparaison de moyennes d'échantillons indépendants.
+On vérifie d'abord les conditions d'applications
+
+```{r q7-1}
+traitement = tension$systolique[tension$groupe == "traitement"]
+placebo = tension$systolique[tension$groupe == "placebo"]
+
+length(traitement)
+length(placebo)
+
+```
+
+N < 30 pour les deux échantillons, donc il faut vérifier la normalité et l'égalité des variances des deux échantillons. Donc on commence par vérifier la normalité en effectuant des tests de Shapiro-Wilk
+
+```{r q7-2}
+# Mêmes hypothèses qu'au-dessus
+shapiro.test(traitement)
+shapiro.test(placebo)
+```
+
+On vérifie maintenant l'égalité des variances avec un test 
+
+```{r q7-3}
+# Même hypothèses qu'au-dessus
+var.test(traitement, placebo)
+```
+
+On observe p = 0.51 >>> alpha = 3%, donc on ne peut pas rejeter H0, ce qui signifie que les variances sont égales, on peut donc procéder au test de Student.
+
+Les hypothèses de ce test de Student effectué sont les suivantes :
+
+* H0 : La tension du groupe traitement est égale à la tension du groupe placebo
+* H1 : La tension du groupe traitement est inférieure à la tension du groupe placebo
+
+```{r q7-4}
+t.test(traitement, placebo, var.equal = TRUE, alternative = "less")
+```
+
+On observe p = 6.8·10⁻⁵ <<< alpha = 3%, donc on rejette H0, ce qui signifie que le traitement diminue bien la tension par rapport au placebo !
+
+# Questions Bonus (2 points)
+
+Ces questions sont indépendantes du reste du sujet et sont en bonus (les points obtenus seront ajoutés au total du sujet).
+
+**Question Bonus 1**. Un médecin souhaite évaluer l'efficacité d'un nouveau traitement antihypertenseur. Comment concevriez-vous une étude avec mesures répétées pour comparer la pression artérielle des patients avant et après le traitement ? Quelle particularité auraient ces données ?
+
+*1pt total (0,5pt pour le protocole + 0,5 pt pour appariées)*
+
+On peut suivre une cohorte de patient⋅es, mesurer leur tension, puis leur administrer le traitement, attendre quelques jours après la prise du traitement et mesurer.
+
+
+**Question Bonus 2**. Estimez la note vous obtiendrez à  cet examen (sur une échelle de 0 à 20) (si vous précisez une valeur : 0,5pt ; si vous êtes à moins de 1,5pt près : 1pt)
+
+*1pt pour une valeur*

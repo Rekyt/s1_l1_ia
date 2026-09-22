@@ -1,0 +1,161 @@
+---
+title: "Sujet SHN - Statistiques L1 Biotechnologies S1"
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+  - \usepackage{lastpage}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancypagestyle{plain}{
+      \renewcommand{\headrulewidth}{0pt}
+      \fancyhead[L]{}
+      \fancyhead[C]{L1 Biotechnologies}
+      \fancyhead[R]{2024-2025}
+      \fancyfoot[C]{\thepage/\pageref{LastPage}}
+    }
+  - \fancyhead[C]{L1 Biotechnologies}
+  - \fancyhead[R]{2024-2025}
+  - \fancyfoot[C]{\thepage/\pageref{LastPage}}
+---
+
+\LARGE Aucun document autorisé
+\normalsize
+
+```{r setup, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+
+## Questions de Cours
+<!--Total : 5,5pt-->
+
+**Question 1**. Quelles méthodes existent pour tester la normalité d'un échantillon ?
+<!-- 1pt total : 0,5pt par méthodes mentionnées -->
+
+**Question 2**. Sur R, que fait l'expression `t.test(x, mu = 2)` ?
+<!-- 1pt total : 0,5pt pour nom du test, 0,5pt pour valeur précise -->
+
+
+**Question 3**. Quelles sont les conditions d'application à vérifier pour comparer deux échantillons appariés avec un test de Student ?
+<!-- 1pt total : 0,5pt par condition ( (1) si n > 30, (2) si n < 30 normalité de la différence) -->
+
+
+**Question 4**. Expliquez succinctement la différence entre un test unilatéral et un test bilatéral.
+<!-- 1pt -->
+
+
+**Question 5**. Préciser toutes les étapes nécessaires à la réalisation d'un test statistique.
+<!-- 1,5pt en fonction nombre d'étapes -->
+
+
+## Exercice 1
+<!-- Total : 6,5pt -->
+
+Une étude s'intéresse au lien qui pourrait exister entre allaitement maternel et pression plus faible dans l'enfance.
+Pour cela, les scientifiques mesurent la pression artérielle d'enfants de 7 ans dont on sait s'ils ont été allaités ou non.
+On mesure la tension de 23 enfants allaités et de 19 enfants non-allaités.
+
+```{r nursing-data}
+set.seed(20240212)
+nursed = rnorm(23, mean = 98.5, sd = 5.0)
+not_nursed = rnorm(19, mean = 99.9, sd = 7)
+
+tension_allaitement = rbind(
+  data.frame(
+    allaitement = "oui",
+    tension = nursed
+  ),
+  data.frame(
+    allaitement = "non",
+    tension = not_nursed
+  )
+)
+```
+
+
+**Question 1**. Cet échantillonnage vous semble-t-il adapté ? Justifiez votre réponse
+
+<!-- 1pt -->
+
+
+**Question 2**. Que représente la Figure 1 ?  Interprétez-la
+
+```{r nursing-boxplot, fig.cap="Tension artérielle des enfants de 7 ans en fonction de s'ils ont été allaités ou non", fig.width=4, fig.height=3}
+par(oma = rep(1.5, 4), mar = c(4, 4, 0, 0))
+boxplot(tension ~ allaitement, data = tension_allaitement)
+```
+
+<!-- 1pt -->
+
+**Question 3**. Sachant que le tableau de données s'appelle `tension_allaitement` (voir un extrait du tableau ci-dessous), que réalise l'expression sur R suivante :  
+**`tension_allaitement[tension_allaitement$allaitement == "oui" & tension_allaitement$tension < 96, ]`** ?
+
+<!-- 1pt -->
+
+```{r nurse-show-table}
+knitr::kable(tension_allaitement[21:25,], caption = "Extrait du tableau de données", row.names = FALSE)
+```
+
+Pour analyser ce jeu de données, on veut réaliser un test de Student de comparaison de moyennes d'échantillons indépendants.
+
+
+**Question 4**. Sachant qu'on a préablement créé deux sous-tableaux `allaités` et `non_allaités` qui contiennent respectivement les tensions des enfants allaités et des enfants non-allaités, on réalise les tests suivants pour vérifier les conditions d'applications du test. Interprétez le résultat de ces tests, puis dites s'il manque ou non un test pour vérifier les conditions d'applications.
+<!-- 1,5pt : 0,75pt interprétations correctes, 0,75pt test de Fisher -->
+
+```{r nurse-verif-conditions}
+allaités = subset(tension_allaitement, allaitement == "oui")
+non_allaités = subset(tension_allaitement, allaitement == "non")
+
+shapiro.test(allaités$tension)
+shapiro.test(non_allaités$tension)
+```
+
+**Question 5**. On réalise un test de comparaison (voir ci-dessous). Quelle particularité possède-t-il ? Comment interprétez-vous le résultat ?
+
+```{r nurse-final-test, echo = TRUE}
+t.test(allaités$tension, non_allaités$tension, alternative = "less")
+```
+<!-- 2pt: 1pt particularité, 1pt interprétation -->
+
+\newpage
+## Exercice 2
+
+<!-- Total : 6pt -->
+
+Les fumeurs ont un risque accru d’événements thrombotiques artériels (formation anormale de caillots), à l’origine notamment l’infarctus du myocarde. Les plaquettes sont des cellules sanguines périphériques qui sont impliquées dans la formation de ces caillots en s’agrégeant.
+
+Une étude a été conduite chez 11 sujets volontaires sains pour comparer l’agrégation des plaquettes avant et après qu’ils aient fumé une cigarette (voir Table 2)
+
+```{r smokers}
+smokers = data.frame(
+  numero_patient = 1:11,
+  avant_cigarette = c(25, 25, 27, 29, 30, 45, 51, 51, 57, 61, 68),
+  apres_cigarette = c(27, 29, 37,  45, 42, 60, 55, 78, 66, 60, 83)
+)
+knitr::kable(smokers, col.names = c("Identifiant du Patient", "Agrégation avant la cigarette", "Agrégation après la cigarette"), caption = "Tableau de données sur les fumeurs")
+```
+
+
+**Question 1**. De quel type de données s'agit-il ?
+<!-- 1pt -->
+
+
+**Question 2**. Justifiez l'intérêt du protocole expérimental utilisé ici.
+<!-- 1pt -->
+
+
+**Question 3**. Quelles sont les hypothèses nulle et alternative du test que vous devriez mettre en place ?
+<!-- 1pt -->
+
+
+**Question 4**. On suppose que les conditions d'applications sont vérifées et on réalise le test suivant. Comment l'interprétez-vous ?
+
+```{r smokers-test}
+t.test(smokers$avant_cigarette, smokers$apres_cigarette, paired = TRUE)
+```
+<!-- 1pt -->
+
+**Question 5**. Les personnes étudiées ici sont fumeuses de longue date. Si vous vouliez étudier l'effet d'une seule cigarette sur le taux d'agrégation plaquettaire, comment feriez-vous ? Cela vous semblerait-il éthique ?
+<!-- 2pt -->
+

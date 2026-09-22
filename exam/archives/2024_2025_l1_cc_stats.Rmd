@@ -1,0 +1,113 @@
+---
+title: "Contrôle continu de statistiques"
+subtitle: "Essai clinique sur un nouvel hypotenseur"
+output:
+  pdf_document:
+    latex_engine: xelatex
+header-includes:
+  - \usepackage{lastpage}
+  - \usepackage{fancyhdr}
+  - \pagestyle{fancy}
+  - \fancypagestyle{plain}{
+      \renewcommand{\headrulewidth}{0pt}
+      \fancyhead[L]{}
+      \fancyhead[C]{L1 Biotech. - S1 Maths \& Stats 1}
+      \fancyhead[R]{2024-2025}
+      \fancyfoot[C]{\thepage/\pageref{LastPage}}
+    }
+  - \fancyhead[C]{L1 Biotech. - S1 Maths \& Stats 1}
+  - \fancyhead[R]{2024-2025}
+  - \fancyfoot[C]{\thepage/\pageref{LastPage}}
+---
+
+**Prénom**:\hspace{5cm} **Nom**:\hspace{5cm} **Groupe**:\hspace{5cm}
+
+## Consignes
+
+**Tous documents autorisés**, mais pas d'IA générative ni de messagerie autorisées.
+
+Sauf si **explicitement demandé**, **il n'est pas nécessaire de recopier le code sur votre copie**.
+
+L'évaluation des réponses tiendra compte de : (1) hypothèses testées, (2) vérification des conditions d'application, (3) résultat obtenu, (4) la rédaction d'une conclusion **complète**.
+
+Si vous effectuez plusieurs fois le même test, vous pouvez écrire une seule fois les hypothèses et vous y référer à plusieurs reprises.
+
+Si vous n'arrivez pas à mettre en place le code pour répondre à une question, imaginez le test que vous auriez mis en place et précisez toutes les autres étapes en imaginant un résultat possible, cela vous permettra d'obtenir la majorité des points.
+
+Si DOORS ne fonctionne pas, appelez le surveillant de votre salle afin de vérifier que ce n'est pas une autre difficulté, si c'est toujours le cas, rédigez vos réponses d'après le point ci-dessus.
+
+Si vous n'avez pas assez de place pour répondre sur le sujet, les versos des sujets peuvent être utilisés.
+
+Pour tout le long du contrôle continu **le seuil alpha fixé est de 3\%**
+
+
+## Contexte des données
+
+L'hypertension artérielle est le fait d'avoir une pression trop élévée dans les vaisseaux sanguins. On considère qu'une personne souffre d'hypertension quand elle a une pression systolique supérieure à 140 mmHg (milimètres de mercure) et une pression diastolique supérieure à 90 mmHg. Dans le monde, on estime que 1,28 milliards de personnes sont touchées par l'hypertension artérielle. Il s'agit d'une des premières causes de décès prématuré au monde.
+
+Dans l'étude réalisée ici, nous mettons en place un essai randomisé pour vérifier si une nouvelle substance, l'Ilepratil, a bien un effet hypotenseur (= qui réduit la tension des patients). Pour cela, on effectue un essai randomisé sur 50 patientes et patients, ils sont aléatoirement assigné aux groupes traitement (qui reçoit de l'ilepatril) ou placebo (qui reçoit un cachet équivalent sans activité) à parts égale. Puis on mesure leur pression systolique 2h après l'administration du cachet.
+
+Les données se présentent sous la forme d'un tableau de 50 lignes avec 5 colonnes :
+
+- `patient_id`, le numéro identifiant la patiente ou le patient ;
+- `age`, l'âge de la patiente ou du patient en années ;
+- `sexe`, le sexe du patient (`"h"` : homme, `"f"` : femme) ;
+- `groupe`, le groupe auquel le patient a été attribué (`"traitement"` : groupe à qui on admnistre de l'ilepatril, `"placebo"` : groupe qui reçoit un placebo) ;
+- `systolique`, la pression systolique en millimètres de mercure.
+
+\newpage
+\pagestyle{fancy}
+Le jeu de données se présente ainsi :
+
+```{r lecture-donnees, echo=FALSE}
+knitr::kable(head(read.table("hypertension.txt", header = TRUE)))
+```
+
+
+# Questions
+
+## Statistiques Descriptives (6 points)
+
+**Question 1**. Quelle est la moyenne d'âge des patients ?
+<!-- 1pt pour valeur correcte -->
+\vskip 75pt
+
+**Question 2**. Combien y a-t-il de personnes souffrant d'hypertension dans l'étude ?\newline(= pression systolique > à 140mmHg)
+<!-- 2pt pour valeur correcte -->
+\vskip 75pt
+
+**Question 3**. Comparez la distribution d'âges entre les groupes placebo et traitement.\newline Que remarquez-vous ? Qu'est-ce que cela signifie pour l'étude ?
+<!--3pt total (1pt pour explication, 1pt pour phrase de remarque, 1pt pour la conclusion pour l'étude) -->
+\vskip 150pt
+
+\newpage
+## Statistiques Inférentielles (14 points)
+
+**Question 4**. Calculez l'intervalle de confiance à 95% de l'âge des personnes dans le groupe `placebo`. (Arrondissez l'intervalle à la 1ère décimale)
+<!--2pt total (1pt vérification hypothèses, 0,5pt valeurs correctes, 0,5pt arrondi) -->
+\vskip 300pt
+
+**Question 5**. La moyenne de pression systolique observée dans l'échantillon est-elle compatible avec tension moyenne observée dans la population de 130 mmHg ? (**Donnez l'expression R du test utilisé**)
+<!--4pt total (1pt hypothèses, 1pt conditions d'application, 1pt expression test, 1pt interprétation)-->
+\vskip 350pt
+
+\newpage
+**Question 6**. Y a-t-il une différence de tension systolique entre les hommes et les femmes de l'échantillon ? (**Donnez l'expression R du test utilisé**)
+<!--4pt total (1pt hypothèses, 1pt conditions d'application, 1pt expression test, 1pt interprétation)-->
+\vskip 325pt
+
+**Question 7**. Le traitement est-il réellement hypotenseur (= réduit la tension artérielle systolique) par rapport au placebo ? (**Donnez l'expression R du test utilisé**)
+<!--4pt total (1pt hypothèses, 1pt conditions d'application, 1pt expression test, 1pt interprétation)-->
+\vskip 325pt
+
+
+# Questions Bonus (2 points)
+
+Ces questions sont indépendantes du reste du sujet et sont en bonus (les points obtenus seront ajoutés au total du sujet).
+
+**Question Bonus 1**. Un médecin souhaite évaluer l'efficacité d'un nouveau traitement antihypertenseur. Comment concevriez-vous une étude avec mesures répétées pour comparer la pression artérielle des patients avant et après le traitement ? Quelle particularité auraient ces données ?
+<!-- 1pt total (0,5pt pour le protocole + 0,5 pt pour appariées) -->
+\vskip 150pt
+
+**Question Bonus 2**. Estimez la note vous obtiendrez à  cet examen (sur une échelle de 0 à 20) (si vous précisez une valeur : 0,5pt ; si vous êtes à moins de 1,5pt près : 1pt)
+<!-- 1pt pour une valeur -->

@@ -1,0 +1,229 @@
+---
+title: "Contrôle continu de statistiques"
+subtitle: "L1 Biotechnologies S1 – 2025-2026"
+author: "Nom :\\hspace{5cm} Prénom :\\hspace{5cm} Groupe : \\hspace{2cm}"
+date: "2025-12-05"
+lang: fr
+date-format: "dddd D MMM YYYY"
+format: 
+  pdf:
+    mainfont: "Garamond"
+    sansfont: "Verdana"
+    toc: false
+    number-sections: false
+    papersize: a4
+params:
+  experience_type: "enzyme"  # Options: "enzyme", "culture", "fermentation"
+  n_obs: 80
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE)
+
+library(ggplot2)
+library(knitr)
+if (params$experience_type == "enzyme") {
+  
+  var_principale <- "activite_ph6"
+  var_secondaire <- "activite_ph7"
+  var_categorielle <- "souche"
+  unite <- "U/mL"
+  contexte <- "l'activité enzymatique de souches bactériennes différentes à différents pH"
+  var_label <- "activité enzymatique à pH 6"
+  var2_label <- "activité enzymatique à pH 7"
+  categorie_label <- "souche bactérienne"
+  var_groupes <- "`souche_a` et `souche_d`"
+  
+} else if (params$experience_type == "fermentation") {
+  
+  var_principale <- "ethanol_anaerobie"
+  var_secondaire <- "ethanol_aerobie"
+  var_categorielle <- "levure"
+  unite <- "g/L"
+  contexte <- "la production d'éthanol de différentes espèces de levures en conditions contrôlées"
+  var_label <- "production d'éthanol (anaérobie)"
+  var2_label <- "production d'éthanol (aérobie)"
+  categorie_label <- "souche de levure"
+  var_groupes <- "`K_pastoris` et `S_cerevisiae`"
+}
+
+filename = paste0(params$experience_type, ".txt")
+
+data <- read.table(filename, header = TRUE)
+```
+
+::: {.callout-note}
+## Instructions importantes
+
+**Durée : 1 heure | Barème : 20 points**
+
+**Tous les documents sont autorisés, mais l'utilisation des IA génératives est interdite**
+
+- Le fichier de données ``r filename`` est disponible en ligne et on vous
+- Répondez directement sur ce sujet en mobilisant le codes
+- **Écrivez uniquement les résultats numériques et vos interprétations** (pas besoin de recopier le code, **sauf mention contraire**)
+- Arrondissez vos résultats à 2 décimales sauf indication contraire
+:::
+
+# Contexte de l'étude
+
+Vous analysez des données d'une expérience portant sur **`r contexte`**. Le jeu de données contient **`r params$n_obs` observations** avec les variables suivantes :
+
+```{r echo=FALSE}
+a = ""
+if (params$experience_type == "enzyme") {
+  a = "
+  - `echantillon` : l'identifiant de l'échantillon sous la forme `eX` avec `X` le numéro de l'échantillon,
+  - `souche` : le nom de la souche étudiée (`souche_a`, `souche_b`, `souche_c` ou bien `souche_d`)
+  - `activite_ph6` : l'activité de la souche bactérienne avec quand le pH du milieu vaut 6
+  - `activite_ph7` : l'activité de la souche bactérienne avec quand le pH du milieu vaut 7
+  "
+} else if (params$experience_type == "fermentation") {
+  
+  a = "
+   - `echantillon` : l'identifiant de l'échantillon sous la forme `fX` avec `X` le numéro de l'échantillon
+   - `levure` : le nom d'espèce de la levure utilisée (`K_marxianus` = _Kluyveromyces marxianus_, `K_pastoris` = _Komagataella pastoris_, `S_bayanus` = _Saccharomyces bayanus_, `S_cerevisiae` = _Saccharomyces cerivisiae_)
+   - `ethanol_anaerobie` : la concentration en éthanol (en g·L⁻¹) final en conditions anéarobies
+   - `ethanol_aerobie` : la concentration en éthanol (en g·L⁻¹) final en conditions aérobies
+   - `temperature` : la température utilisée dans l'expérience
+   - `sucre_initial` : la quantité de sucre présente au début de l'expérience
+  "
+  
+}
+
+knitr::asis_output(a)
+```
+
+\newpage
+
+# Partie 1 : Statistiques Descriptives {13 points}
+
+**Question 1** : Exploration initiale (2 points)
+
+Après avoir chargé les données, répondez aux questions suivantes :
+
+**a)** Combien y a-t-il de lignes et de colonnes dans le jeu de données ?
+
+> Réponse : _____ lignes et _____ colonnes
+
+
+**b)** Combien de niveaux différents compte la variable **``r var_categorielle``** ?
+
+> Réponse : _____ niveaux
+
+
+\vspace{1cm}
+
+**Question 2** : Statistiques univariées (3 points)
+
+Pour la variable **`r var_label`** (``r var_principale``), calculez les statistiques suivantes :
+
+> Moyenne : _______   Médiane : _______ Écart-type : _______  
+> Q1 (25%) : _______ Q3 (75%) : _______  
+> Minimum : _______ Maximum : _______
+
+
+\vspace{0.5cm}
+
+**Question 3** : Statistiques par groupe (3 points)
+
+Calculez la moyenne et l'écart-type de **``r var_principale``** pour la première **`r categorie_label`** (=``r data[1, var_categorielle]``) :
+
+> Moyenne :
+
+> Écart-ype :
+
+\vspace{0.5cm}
+
+**Question 4** : Graphiques de distribution (5 points)
+
+**a)** Créez un **histogramme** de **``r var_principale``** et décrivez la forme de la distribution (symétrique, asymétrique à gauche/droite, bimodale...).
+
+
+
+\newpage
+
+**b)** Créez un **boxplot** de **``r var_principale``** par **``r var_categorielle``**. Quel groupe présente la plus grande étendue ?  
+(Vous pouvez utiliser l'instruction sous la forme suivante `boxplot(data$variable_quantitative ~ data$variable_categorielle)` pour représenter les boxplots côte-à-côte)
+
+```{r echo=FALSE, eval=FALSE}
+boxplot(var_principale ~ var_categorielle, data = data)
+```
+
+> Groupe avec la plus grande étendue : _____________________________
+>
+> Justification : __________________________________________________________
+
+\vspace{0.5cm}
+
+# Partie 2 : Statistiques Inférentielles {7 points}
+
+**Question 5** : Intervalle de confiance (3 points)
+
+Calculez un **intervalle de confiance à 95%** pour la moyenne de **`r var_principale`**.
+
+```{r echo=FALSE, eval=FALSE}
+t.test(data$var_principale)$conf.int
+```
+
+**a)** L'intervalle de confiance à 95% est : **[ _______ ; _______ ]** `r unite`
+
+
+**b)** Si vous calculiez un IC à 99% au lieu de 95%, serait-il plus large ou plus étroit ?
+
+> Réponse : _________________________ 
+>
+> Pourquoi ? _______________________________________________________________
+
+\vspace{0.25cm}
+
+**Question 6** : Test de Student (4 points)
+
+Comparez **`r var_principale`** des deux groupes **`r var_groupes`**
+
+**a)** Hypothèses :
+
+> $H_0$ : ___________________________________________________________________
+>
+> $H_1$ : ___________________________________________________________________
+
+
+**b)** Vérification des conditions d'applications :
+
+\vspace{5cm}
+
+**c)** _p-value_ : p = _______
+
+
+**d)** Conclusion au seuil α = 0.05 :
+
+>
+>
+>
+>
+>
+
+\newpage
+
+# Questions Bonus
+
+::: {.callout-note}
+Ces questions ne sont pas comptées dans le total de 20 points et peuvent vous permettre d'obtenir jusqu'à deux points supplémentaires !
+:::
+
+
+## Question Bonus 1 (1 point)
+
+Pourquoi la médiane est-elle préférable à la moyenne comme indicateur de position pour des données très asymétriques ?
+
+\vspace{5cm}
+
+
+## Question Bonus 2 (1 point)
+
+Donnez une estimation de la note (entre 0 et 20) que vous allez obtenir à ce contrôle continu, sans compter les points bonus.
+
+>
+>
+>
+>
