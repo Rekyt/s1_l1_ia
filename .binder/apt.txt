@@ -1,5 +1,5 @@
 pandoc
 texlive-fonts-recommended
-texlive-plain-recommended
+texlive-plain-generic
 texlive-science
 texlive-xetex
