@@ -1,11 +1,5 @@
-dvipng
-ghostscript
+pandoc
 texlive-fonts-recommended
-texlive-generic-recommended
-texlive-latex-base
-texlive-latex-extra
-texlive-latex-recommended
-texlive-publishers
+texlive-plain-recommended
 texlive-science
 texlive-xetex
-cm-super
