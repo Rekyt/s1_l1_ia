@@ -42,6 +42,36 @@ ggplot() +
 	theme_bw() +
 	labs(x = "Glycémie", y = "Densité")
 
+
+population = rexp(1e5, 0.05)
+
+n_samples = 50
+
+list_of_means = seq(n_samples) |>
+	vapply(\(x) {
+		mean(sample(population, size = 40))
+	}, 2.5)
+
+ggplot() +
+	geom_density(
+		data = tibble::enframe(population), aes(value, y = after_stat(scaled)),
+		color = "#158466", linewidth = 1.2
+	) +
+	geom_density(
+		data = tibble::enframe(list_of_means), aes(value, y = after_stat(scaled)),
+		color = "#c9211e", linewidth = 1.2
+	) +
+	geom_vline(xintercept = 20, linetype = 2, linewidth = 1.2) +
+	annotate("text", label = "µ", x = 0.925, y = 60, size = 10) +
+	theme_bw() +
+	labs(x = "Glycémie", y = "Densité") +
+	scale_x_log10()
+
+hist(population, xlab = "Value", ylab = "Nombre de valeurs", main = "Population : exponentielle décroissante",
+		 col = "#158466")
+
+hist(list_of_means, xlab = "Moyenne de l'échantillon", ylab = "Nombre de valeurs", main = "Distribution des moyennes des échantillons", col = "#c9211e")
+
 # Figure intervalle confiance --------------------------------------------------
 
 set.seed(14102025)

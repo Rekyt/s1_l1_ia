@@ -2,3 +2,4 @@
 .~lock*
 .Rproj.user
 *.Rhistory
+.posit/assistant
