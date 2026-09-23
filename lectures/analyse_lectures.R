@@ -1,3 +1,6 @@
+# Packages ---------------------------------------------------------------------
+library("ggplot2")
+
 # Make figures -----------------------------------------------------------------
 
 sante = read.csv("exemple-donnees-sante-csv.txt")
@@ -13,6 +16,31 @@ hist(sante$Poids, main = "Histogramme du poids", xlab = "Poids", ylab = "Effecti
 
 boxplot(sante$Poids, ylab = "Poids")
 
+# Sampling population versus samples -------------------------------------------
+
+set.seed(20260922)
+population = rnorm(1e5, 0.9, 0.05)
+
+n_samples = 50
+
+list_of_means = seq(n_samples) |>
+	vapply(\(x) {
+		mean(sample(population, size = 40))
+	}, 2.5)
+
+ggplot() +
+	geom_density(
+		data = tibble::enframe(population), aes(value, y = after_stat(density)),
+		color = "#158466", linewidth = 1.2
+	) +
+	geom_density(
+		data = tibble::enframe(list_of_means), aes(value, y = after_stat(density)),
+		color = "#c9211e", linewidth = 1.2
+	) +
+	geom_vline(xintercept = 0.9, linetype = 2, linewidth = 1.2) +
+	annotate("text", label = "µ", x = 0.925, y = 60, size = 10) +
+	theme_bw() +
+	labs(x = "Glycémie", y = "Densité")
 
 # Figure intervalle confiance --------------------------------------------------
 
